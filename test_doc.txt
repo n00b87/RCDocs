@@ -1,0 +1,46 @@
+#title PAGE TITLE
+#header PAGE HEADER
+
+This is an example of a paragraph.
+
+This is another paragraph.
+
+New paragraphs are started by skipping a line after the last paragraph.
+
+#table
+#row "this is table column1", "this is table column2", "etc."
+#row "this is another row c1", "this is another row c2", "etc."
+#/table
+
+
+#code
+	Print "hello world"
+	TestFunction("a string", 5.4347, 99, 0.334, "yolo because i need spaces") 'a simple comment line
+	If x > 5 Then
+		Print "Do this"
+	End If
+	z = 56.67
+#/code
+
+<br> You can still use html directly with RCDocs
+
+<br>
+Unordered List
+#list ul
+#li item 1
+#li item 2
+#li etc.
+#/list
+
+<br>
+Ordered List
+#list ol
+#li item 1
+#li item 2
+#li etc.
+#/list
+
+
+#image "images/rcbasic_icon.png"
+
+#image "images/rcbasic_icon.png", w=32, h=32

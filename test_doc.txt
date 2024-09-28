@@ -41,6 +41,8 @@ Ordered List
 #/list
 
 
-#image "images/rcbasic_icon.png"
+#image "media/rcbasic_icon.png"
 
-#image "images/rcbasic_icon.png", w=32, h=32
+#image "media/rcbasic_icon.png", w=32, h=32
+
+#video "media/example.mp4", w=640, h=480

@@ -126,7 +126,7 @@ Sub SetFlags( t$ )
 	
 	
 	Select Case t$
-	Case "#row"
+	Case "#row", "#ref"
 		table_row_flag = True
 	Case "#h", "#header", "#list", "#title"
 		txt_flag = True
@@ -698,6 +698,14 @@ Function tokenize_line( doc_line$ )
 		cblock_flag = True
 		addExportSource("<p id=\qrc_code\q><code>")
 		
+	Case "#ref"
+		'Print "ref found"
+		addExportSource("<br><p>Related: ")
+		For i = 1 to num_doc_cmd_args[start_cmd]
+			addExportSource("<a href=\q" + LCase$(Trim(Replace(doc_cmd$[start_cmd, i],"$",""))) + ".html\q>" + doc_cmd$[start_cmd, i] + "</a>")
+		Next
+		addExportSource("</p>")
+		table_row_flag = False
 	End Select
 		
 	

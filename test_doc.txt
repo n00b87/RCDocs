@@ -46,3 +46,5 @@ Ordered List
 #image "media/rcbasic_icon.png", w=32, h=32
 
 #video "media/example.mp4", w=640, h=480
+
+#ref test_doc2 test_doc3

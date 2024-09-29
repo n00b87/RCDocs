@@ -15,14 +15,14 @@ To generate html docs from your text files you need to either pass a directory o
 RCDocs are structured with a tile, a header, and the contents of the document. Here is an example:
 
 ```
- \#title My Document Title
- \#header My Document Header
+ #title My Document Title
+ #header My Document Header
  
  A paragraph is started by typing something on a line.
  
  Another paragraph is created if a new non-blank line is made after an empty line.
  
- \#image "test.png"
+ #image "test.png"
  A paragraph is also created if the last line was a command line.
 ```
 

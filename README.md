@@ -10,6 +10,10 @@ To generate html docs from your text files you need to either pass a directory o
 
 `rcbasic rc_docs name_of_text_file.txt`
 
+If you have a directory of RCDoc txt files, you can use rc_doc_run to generate html on all the doc files in a directory. To be able to use this, you need to build rc_doc_run.bas and have a environment variable called RC_DOC_HOME set to the directory where you have RCDocs installed. You can then run the following command:
+
+`rcbasic $RC_DOC_HOME/rc_doc_run <doc_input_dir> <output_dir>`
+
 
 ## Writing RCDocs file
 RCDocs are structured with a tile, a header, and the contents of the document. Here is an example:

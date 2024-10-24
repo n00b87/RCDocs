@@ -55,19 +55,20 @@ Dim par_txt$
 
 Dim error_flag
 Dim error$
-
+'fsfd
 Sub OutputDoc(output_file$)
 	doc_base_src$ = Replace(doc_base_src$, "[title]", doc_title$)
 
 	style_tab$ = "\t\t\t"
+	4
+	style_css_file = FreeFile
 	style_src$ = ""
-	style_src$ = style_src$ + style_tab$ + table_style$ + "\n"
-	style_src$ = style_src$ + style_tab$ + body_style$ + "\n"
-	style_src$ = style_src$ + style_tab$ + number_style$ + "\n"
-	style_src$ = style_src$ + style_tab$ + string_style$ + "\n"
-	style_src$ = style_src$ + style_tab$ + keyword_style$ + "\n"
-	style_src$ = style_src$ + style_tab$ + comment_style$ + "\n"
-	style_src$ = style_src$ + style_tab$ + cblock_style$ + "\n"
+	FileOpen(style_css_file, "style.css", TEXT_INPUT)
+	While Not EOF(style_css_file)
+		style_src$ = style_src$ + ReadLine(style_css_file) + "\n"
+	Wend
+	FileClose(style_css_file)
+	
 	doc_base_src$ = Replace(doc_base_src$, "[style]", Trim(style_src$))
 	
 	body_src$ = "\t\t<p>" + doc_header$ + "</p>\n"
@@ -77,10 +78,20 @@ Sub OutputDoc(output_file$)
 	
 	doc_base_src$ = Replace(doc_base_src$, "[body]", body_src$)
 	
+	ch_dir = False
+	old_dir$ = Dir$
+	If NumCommands() > 2 Then
+		If DirExists(Dir$ + "/" + Command$(2)) Then
+			ChangeDir(Dir$ + "/" + Command$(2))
+			ch_dir = True
+		End If
+	End If
 	FileOpen(0, output_file$, TEXT_OUTPUT)
 	Write(0, doc_base_src$)
 	FileClose(0)
-	
+	If ch_dir Then
+		ChangeDir(old_dir$)
+	End If
 End Sub
 
 Function isDelim( dval$ )
@@ -203,9 +214,37 @@ Sub init_doc()
 	num_doc_tokens = 0
 	num_export_source = 0
 	
-	ArrayFill(export_source$, "")
+	ArrayFill(doc_tokens$, "")
+	ArrayFill(delim$, "")
 	ArrayFill(doc_cmd$, "")
+	current_doc_cmd = 0
 	ArrayFill(num_doc_cmd_args, 0)
+
+	par_flag = 0
+	set_flag = 0
+	cblock_flag = 0
+	table_flag = 0
+	table_row_flag = 0
+	list_flag = 0
+	list_item_flag = 0
+	current_list = 0
+	txt_flag = 0
+
+	ArrayFill(cblock$, "")
+
+	ArrayFill(export_source$, "")
+	num_export_source = 0
+
+
+	list_stack = 0
+	list_item_p_stack = 1
+
+	tmp_id$ = ""
+
+	par_txt$ = ""
+
+	error_flag = 0
+	error$ = ""
 	
 	Stack_N(list_stack)
 	For i = 0 to Stack_Size_N()-1
@@ -293,8 +332,9 @@ rc_keyword$[26] = "case"
 rc_keyword$[27] = "return"
 rc_keyword$[28] = "true"
 rc_keyword$[29] = "false"
+rc_keyword$[30] = "byref"
 
-num_keywords = 30
+num_keywords = 31
 
 
 Function rc_getExpandedCBID$(txt$)
@@ -364,7 +404,7 @@ Sub addCodeBlockLine(src$)
 					cb_parse$ = cb_parse$ + "<span class=\qrc_comment\q>" + Mid(src$, i, Len(src$)) + "</span>"
 					Exit For
 				End If
-			Case " ", "\t"
+			Case " ", "\t", "+", "-", "/", "*", ":"
 				cb_parse$ = cb_parse$ + c$
 			Case "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
 				cb_token$ = "<span class=\qrc_number\q>"
@@ -734,30 +774,19 @@ Function ParseFile(src_file$)
 End Function
 
 If NumCommands() > 1 Then
-	If DirExists(Command$(1)) Then
-		ChangeDir(Command$(1))
-		src_file$ = Trim(DirFirst$)
-		While src_file$ <> ""
-			If Right$(src_file$, 4) = ".txt" Then
-				Print "Parse "; src_file$; ": ";
-				If ParseFile(src_file$) Then
-					Print "SUCCESS"
-					OutputDoc(Replace(src_file$, ".txt", ".html"))
-				Else
-					Print "FAIL: "; error$
-				End If
-			End If
-			src_file$ = DirNext$()
-		Wend
-		
-		Print "All Docs Generated"
-	ElseIf FileExists(Command$(1)) Then
+	Print "Doc Source: "; Command$(1)
+	
+	If FileExists(Command$(1)) Then
 		src_file$ = Trim(Command$(1))
 		If Right$(src_file$, 4) <> ".txt" Then
 			Print "Must provide *.txt File"
-			End 0
+			End 1
 		End If
 		out_file$ = Replace(src_file$, ".txt", ".html")
+		
+		If NumCommands() > 2 Then
+			out_file$ = Command$(2)
+		End If
 		
 		If ParseFile(src_file$) Then
 			OutputDoc(out_file$)

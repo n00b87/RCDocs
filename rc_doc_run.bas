@@ -54,7 +54,12 @@ cmd$ = Trim$(Env$("RC_DOC_HOME"))
 
 If Right(cmd$, 1) <> "/" Then
 	cmd$ = cmd$ + "/rc_doc"
+Else
+	cmd$ = cmd$ + "rc_doc"
 End If
+
+Print "Debug: "; cmd$
+Print "DST = "; dst_dir$
 
 ChangeDir(dst_dir$)
 

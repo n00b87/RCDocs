@@ -63,7 +63,13 @@ Sub OutputDoc(output_file$)
 	4
 	style_css_file = FreeFile
 	style_src$ = ""
-	FileOpen(style_css_file, "style.css", TEXT_INPUT)
+	
+	home_dir$ = Trim$(Env("RC_DOC_HOME"))
+	If Right(home_dir$, 1) <> "/" Then
+		home_dir$ = home_dir$ + "/"
+	End If
+	Print "CSS = ";home_dir$+"style.css"
+	FileOpen(style_css_file, home_dir$+"style.css", TEXT_INPUT)
 	While Not EOF(style_css_file)
 		style_src$ = style_src$ + ReadLine(style_css_file) + "\n"
 	Wend

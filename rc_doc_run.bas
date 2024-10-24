@@ -52,6 +52,10 @@ Next
 cmd_dir$ = Reverse(cmd_dir$)
 cmd$ = Trim$(Env$("RC_DOC_HOME"))
 
+If Right(cmd$, 1) <> "/" Then
+	cmd$ = cmd$ + "/rc_doc"
+End If
+
 ChangeDir(dst_dir$)
 
 For i = 0 to src_file_count-1

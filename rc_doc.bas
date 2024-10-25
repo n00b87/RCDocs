@@ -288,9 +288,7 @@ Sub init_doc()
 	doc_base_src$ = doc_base_src$ + "<!DOCTYPE html>\n"
 	doc_base_src$ = doc_base_src$ + "<html>\n"
 	doc_base_src$ = doc_base_src$ + "\t<head>\n"
-	doc_base_src$ = doc_base_src$ + "\t\t<style>\n"
-	doc_base_src$ = doc_base_src$ + "[style]\n"
-	doc_base_src$ = doc_base_src$ + "\t\t</style>\n"
+	doc_base_src$ = doc_base_src$ + "\t\t<link rel=\qstylesheet\q href=\qstyle.css\q>\n"
 	doc_base_src$ = doc_base_src$ + "\t\t<meta  content=\qtext/html; charset=UTF-8\q  http-equiv=\qcontent-type\q>\n"
 	doc_base_src$ = doc_base_src$ + "\t\t<title>[title]</title>\n"
 	doc_base_src$ = doc_base_src$ + "\t</head>\n\n"
@@ -299,7 +297,7 @@ Sub init_doc()
 	doc_base_src$ = doc_base_src$ + "\t</body>\n"
 	doc_base_src$ = doc_base_src$ + "</html>"
 	
-	doc_header$ = "<h1>[arg]</h1>"
+	doc_header$ = "<h2>[arg]</h2>"
 	doc_title$ = "<title>[arg]</title>"
 End Sub
 
@@ -633,11 +631,11 @@ Function tokenize_line( doc_line$ )
 	Case "#row"
 		table_row_flag = False
 	Case "#header", "#h"
-		doc_header$ = "<h1>"
+		doc_header$ = "<h2>"
 		For i = 1 to num_doc_cmd_args[start_cmd]
 			doc_header$ = doc_header$ + doc_cmd$[start_cmd, i]
 		Next
-		doc_header$ = doc_header$ + "</h1>"	
+		doc_header$ = doc_header$ + "</h2>"	
 	Case "#title"
 		doc_title$ = ""
 		For i = 1 to num_doc_cmd_args[start_cmd]
@@ -758,6 +756,18 @@ Function tokenize_line( doc_line$ )
 	Return True
 End Function
 
+Function CleanSource$(line_source$)
+	line_source$ = Trim(line_source$)
+	For i = 0 to Len(line_source$)-1
+		If Mid(line_source$, i, 1) = "\t" Then
+			line_source$ = Mid(line_source$, i+1, Len(line_source$))
+		Else
+			Exit For
+		End If
+	Next
+	Return line_source$
+End Function
+
 Function ParseFile(src_file$)
 	init_doc
 		
@@ -767,11 +777,16 @@ Function ParseFile(src_file$)
 	
 	FileOpen(0, src_file$, TEXT_INPUT)
 	
+	line_num = 1
+	
 	While Not EOF(0)
-		If Not tokenize_line(ReadLine(0)) Then
+		src_line$ = CleanSource(ReadLine(0))
+		If Not tokenize_line(src_line$) Then
 			FileClose(0)
+			Print "Error On Line "; line_num; ": "; src_line$
 			Return False
 		End If
+		line_num = line_num + 1
 	Wend
 	
 	FileClose(0)
@@ -799,6 +814,12 @@ If NumCommands() > 1 Then
 			Print "Generated output file: "; out_file$
 		Else
 			Print "---Failed to generate Doc: "; error$
+			
+			f = FreeFile
+			FileOpen(f, "rc_doc_error.txt", TEXT_APPEND)
+			WriteLine(f, out_file$)
+			FileClose(f)
+			
 		End If
 	End If
 End If

@@ -364,6 +364,8 @@ Sub addCodeBlockLine(src$)
 	
 	cb_parse$ = ""
 	
+	cb_tbreak = true
+	
 	For i = 0 to Len(src$)-1
 		c$ = Mid(src$, i, 1)
 		If c$ = "\q" Then
@@ -382,10 +384,11 @@ Sub addCodeBlockLine(src$)
 		
 		If Not quote Then
 			Select Case c$
-			Case "(", ")", "[", "]", ",", ";", ":", " ", "+", "-", "/", "*", "^", "'"
+			Case "(", ")", "[", "]", ",", ";", ":", " ", "+", "-", "/", "*", "^", "'", "\t"
 				cb_token$ = rc_getExpandedCBID(cb_token$)
 				cb_parse$ = cb_parse$ + cb_token$
 				cb_token$ = ""
+				cb_tbreak = true
 			End Select
 		
 			Select Case c$
@@ -411,13 +414,17 @@ Sub addCodeBlockLine(src$)
 			Case " ", "\t", "+", "-", "/", "*", ":"
 				cb_parse$ = cb_parse$ + c$
 			Case "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
-				cb_token$ = "<span class=\qrc_number\q>"
+				If cb_tbreak Then
+					cb_token$ = "<span class=\qrc_number\q>"
+				End If
 				For i = i to Len(src$)-1
 					Select Case Mid(src$, i, 1)
 					Case "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "."
 						cb_token$ = cb_token$ + Mid(src$, i, 1)
 					Default
-						cb_token$ = cb_token$ + "</span>"
+						If cb_tbreak Then
+							cb_token$ = cb_token$ + "</span>"
+						End If
 						i = i - 1
 						cb_parse$ = cb_parse$ + cb_token$
 						cb_token$ = ""
@@ -427,6 +434,7 @@ Sub addCodeBlockLine(src$)
 				Next
 			Default
 				cb_token$ = cb_token$ + c$
+				cb_tbreak = false
 			End Select
 		Else
 			cb_parse$ = cb_parse$ + c$
